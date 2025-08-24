@@ -4,10 +4,14 @@ import { LocalAuthGuard } from './local-auth.guard';
 import { Public, ResponseMessage, User } from 'src/decorator/customize';
 import { Request, Response } from 'express';
 import { IUser } from 'src/users/user.interface';
+import { RoleService } from 'src/role/role.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private roleService: RoleService,
+  ) {}
 
   @Post('login')
   @UseGuards(LocalAuthGuard)
@@ -17,9 +21,11 @@ export class AuthController {
     return this.authService.login(req.user, response);
   }
 
-  @Get('account')
   @ResponseMessage('Get user information')
-  account(@User() user: IUser) {
+  @Get('account')
+  async handleGetAccount(@User() user: IUser) {
+    const temp = (await this.roleService.findOne(user.role._id)) as any;
+    user.permissions = temp.permissions;
     return { user };
   }
 

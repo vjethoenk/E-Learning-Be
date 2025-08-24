@@ -1,16 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './schemas/user.schema';
-import { Model } from 'mongoose';
+import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
+import { USER_ROLE } from 'src/databases/sample';
+import { Role, RoleDocument } from 'src/role/schemas/role.schema';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name) private userModel: SoftDeleteModel<UserDocument>,
+    @InjectModel(Role.name) private roleModel: SoftDeleteModel<RoleDocument>,
   ) {}
 
   hashPassword = (password: string) => {
@@ -35,19 +38,35 @@ export class UsersService {
   }
 
   findRefreshToken = async (refreshToken: string) => {
-    return await this.userModel.findOne({ refreshToken });
+    return await this.userModel.findOne({ refreshToken }).populate({
+      path: 'role',
+      select: { name: 1 },
+    });
   };
+
+  findOneByUserName(username: string) {
+    return this.userModel
+      .findOne({
+        email: username,
+      })
+      .populate({
+        path: 'role',
+        select: { name: 1 },
+      });
+  }
 
   findAll() {
     return `This action returns all users`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
-  }
-
-  findOneByUserName(username: string) {
-    return this.userModel.findOne({ email: username });
+  async findOne(id: string) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('not found role');
+    }
+    return (await this.roleModel.findById(id))!.populate({
+      path: 'permissions',
+      select: { _id: 1, apiPath: 1, name: 1, method: 1, module: 1 },
+    });
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {

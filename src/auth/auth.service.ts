@@ -5,6 +5,7 @@ import { IUser } from 'src/users/user.interface';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
 import ms from 'ms';
+import { RoleService } from 'src/role/role.service';
 
 @Injectable()
 export class AuthService {
@@ -12,9 +13,10 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private configService: ConfigService,
+    private roleService: RoleService,
   ) {}
 
-  //Chạy khi login
+  //Chạy khi login + lấy role và permission
   async validateUser(username: string, pass: string): Promise<any> {
     const user = await this.usersService.findOneByUserName(username);
     if (user) {
@@ -23,14 +25,22 @@ export class AuthService {
         user.password,
       );
       if (isValid === true) {
-        return user;
+        const userRole = user.role as unknown as { _id: string; name: string };
+        const temp = await this.roleService.findOne(userRole._id);
+
+        const objUser = {
+          ...user.toObject(),
+          permissions: temp?.permissions ?? [],
+        };
+
+        return objUser;
       }
     }
     return null;
   }
 
   async login(user: IUser, response: Response) {
-    const { _id, name, email, role } = user;
+    const { _id, name, email, role, permissions } = user;
     const payload = {
       sub: 'token login',
       iss: 'from server',
@@ -58,6 +68,7 @@ export class AuthService {
         name,
         email,
         role,
+        permissions,
       },
     };
   }
@@ -88,7 +99,7 @@ export class AuthService {
         _id: user._id.toString(),
         name: user.name,
         email: user.email,
-        role: user.role,
+        role: user.role as unknown as { _id: string; name: string },
       };
       response.clearCookie('refresh_token');
       return await this.login(userRefresh, response);

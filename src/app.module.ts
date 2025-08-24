@@ -6,6 +6,9 @@ import { UsersModule } from './users/users.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import { softDeletePlugin } from 'soft-delete-plugin-mongoose';
+import { RoleModule } from './role/role.module';
+import { PermissionsModule } from './permissions/permissions.module';
+import { DatabasesModule } from './databases/databases.module';
 
 @Module({
   imports: [
@@ -25,6 +28,9 @@ import { softDeletePlugin } from 'soft-delete-plugin-mongoose';
     ConfigModule.forRoot({ isGlobal: true }),
     UsersModule,
     AuthModule,
+    RoleModule,
+    PermissionsModule,
+    DatabasesModule,
   ],
   controllers: [AppController],
   providers: [
