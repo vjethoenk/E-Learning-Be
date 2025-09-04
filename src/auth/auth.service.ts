@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
 import ms from 'ms';
 import { RoleService } from 'src/role/role.service';
+import { ok } from 'assert';
 
 @Injectable()
 export class AuthService {
@@ -106,5 +107,11 @@ export class AuthService {
     } catch (error) {
       throw new BadRequestException('Token không hợp lệ. Vui lòng login.');
     }
+  }
+
+  async logout(response: Response, user: IUser) {
+    response.clearCookie('refresh_token');
+    await this.usersService.updateRefreshToken('', user._id);
+    return 'Logout Oke';
   }
 }

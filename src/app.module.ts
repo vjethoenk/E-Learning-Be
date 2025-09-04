@@ -9,6 +9,11 @@ import { softDeletePlugin } from 'soft-delete-plugin-mongoose';
 import { RoleModule } from './role/role.module';
 import { PermissionsModule } from './permissions/permissions.module';
 import { DatabasesModule } from './databases/databases.module';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { CoursesModule } from './courses/courses.module';
+import { CategoriesModule } from './categories/categories.module';
+import { FilesModule } from './files/files.module';
 
 @Module({
   imports: [
@@ -25,12 +30,46 @@ import { DatabasesModule } from './databases/databases.module';
       }),
       inject: [ConfigService],
     }),
+
+    //Email
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        transport: {
+          host: 'smtp.gmail.com',
+          port: 465,
+          secure: true,
+          // ignoreTLS: true,
+          // secure: false,
+          auth: {
+            user: configService.get<string>('MAIL_USER'),
+            pass: configService.get<string>('MAIL_PASSWORD'),
+          },
+        },
+        defaults: {
+          from: '"No Reply" <no-reply@localhost>',
+        },
+        // preview: true,
+        // template: {
+        //   dir: process.cwd() + '/template/',
+        //   adapter: new HandlebarsAdapter(), // or new PugAdapter() or new EjsAdapter()
+        //   options: {
+        //     strict: true,
+        //   },
+        // },
+      }),
+      inject: [ConfigService],
+    }),
+
     ConfigModule.forRoot({ isGlobal: true }),
     UsersModule,
     AuthModule,
     RoleModule,
     PermissionsModule,
     DatabasesModule,
+    CoursesModule,
+    CategoriesModule,
+    FilesModule,
   ],
   controllers: [AppController],
   providers: [

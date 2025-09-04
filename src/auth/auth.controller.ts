@@ -5,12 +5,14 @@ import { Public, ResponseMessage, User } from 'src/decorator/customize';
 import { Request, Response } from 'express';
 import { IUser } from 'src/users/user.interface';
 import { RoleService } from 'src/role/role.service';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private authService: AuthService,
     private roleService: RoleService,
+    private readonly mailerService: MailerService,
   ) {}
 
   @Post('login')
@@ -38,5 +40,23 @@ export class AuthController {
   ) {
     const refreshToken = request.cookies['refresh-token'];
     return this.authService.newToken(refreshToken, response);
+  }
+
+  @Get('mail')
+  @Public()
+  @ResponseMessage('Send email success')
+  testMail() {
+    this.mailerService.sendMail({
+      to: 'ductk1705@gmail.com', // list of receivers
+      subject: 'Testing Nest MailerModule ✔', // Subject line
+      text: 'welcome', // plaintext body
+      html: '<b>Hello Hoang tao test api thoi</b>', // HTML body content
+    });
+    return 'Ok mail đã gửi';
+  }
+  @Post('logout')
+  @ResponseMessage('Logout success')
+  logout(@Res({ passthrough: true }) response: Response, @User() user: IUser) {
+    this.authService.logout(response, user);
   }
 }

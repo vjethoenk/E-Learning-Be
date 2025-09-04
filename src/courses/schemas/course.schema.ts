@@ -1,22 +1,24 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
-import { Permission } from 'src/permissions/schemas/permission.schema';
 
-export type RoleDocument = HydratedDocument<Role>;
+export type CourseDocument = HydratedDocument<Course>;
 
 @Schema({ timestamps: true })
-export class Role {
+export class Course {
   @Prop()
-  name: string;
+  title: string;
 
   @Prop()
   description: string;
 
   @Prop()
-  isActive: boolean;
+  thumbnail: boolean;
 
-  @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: Permission.name })
-  permissions: Permission[];
+  @Prop()
+  price: number;
+
+  @Prop()
+  CategoryId: string;
 
   @Prop({ type: Object })
   createBy: {
@@ -49,4 +51,4 @@ export class Role {
   deletedAt: Date;
 }
 
-export const RoleSchema = SchemaFactory.createForClass(Role);
+export const CourseSchema = SchemaFactory.createForClass(Course);

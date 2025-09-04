@@ -1,5 +1,6 @@
-export const ADMIN_ROLE = 'SUPER_ADMIN';
-export const USER_ROLE = 'NORMAL_USER';
+export const ADMIN_ROLE = 'ADMIN';
+export const USER_ROLE = 'USER';
+export const INSTRUCTOR_ROLE = 'INSTRUCTOR';
 export const INIT_PERMISSIONS = [
   {
     _id: '648ab6d3fa16b294212e4033',
