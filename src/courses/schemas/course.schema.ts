@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument } from 'mongoose';
+import mongoose, { HydratedDocument, Types } from 'mongoose';
 
 export type CourseDocument = HydratedDocument<Course>;
 
@@ -12,13 +12,13 @@ export class Course {
   description: string;
 
   @Prop()
-  thumbnail: boolean;
+  thumbnail: string;
 
   @Prop()
   price: number;
 
-  @Prop()
-  CategoryId: string;
+  @Prop({ type: Types.ObjectId, ref: 'Category', required: true })
+  categoryId: Types.ObjectId;
 
   @Prop({ type: Object })
   createBy: {

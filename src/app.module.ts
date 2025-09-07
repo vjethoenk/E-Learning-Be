@@ -14,6 +14,9 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
 import { CoursesModule } from './courses/courses.module';
 import { CategoriesModule } from './categories/categories.module';
 import { FilesModule } from './files/files.module';
+import { YoutubeModule } from './youtube/youtube.module';
+import { SectionsModule } from './sections/sections.module';
+import { LessonsModule } from './lessons/lessons.module';
 
 @Module({
   imports: [
@@ -70,6 +73,9 @@ import { FilesModule } from './files/files.module';
     CoursesModule,
     CategoriesModule,
     FilesModule,
+    YoutubeModule,
+    SectionsModule,
+    LessonsModule,
   ],
   controllers: [AppController],
   providers: [

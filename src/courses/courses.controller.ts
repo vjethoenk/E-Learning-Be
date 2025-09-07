@@ -6,11 +6,12 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
-import { ResponseMessage, User } from 'src/decorator/customize';
+import { Public, ResponseMessage, User } from 'src/decorator/customize';
 import { IUser } from 'src/users/user.interface';
 
 @Controller('courses')
@@ -24,8 +25,14 @@ export class CoursesController {
   }
 
   @Get()
-  findAll() {
-    return this.coursesService.findAll();
+  @Public()
+  @ResponseMessage('Show pagination ')
+  findAll(
+    @Query('current') current: string,
+    @Query('pageSize') pageSize: string,
+    @Query() qs,
+  ) {
+    return this.coursesService.findAll(+current, +pageSize, qs);
   }
 
   @Get(':id')

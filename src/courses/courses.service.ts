@@ -5,6 +5,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Course, CourseDocument } from './schemas/course.schema';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { IUser } from 'src/users/user.interface';
+import aqp from 'api-query-params';
 
 @Injectable()
 export class CoursesService {
@@ -22,8 +23,34 @@ export class CoursesService {
     });
   }
 
-  findAll() {
-    return `This action returns all courses`;
+  async findAll(current: number, pageSize: number, qs: string) {
+    const { filter, sort, projection, population } = aqp(qs);
+    delete filter.current;
+    delete filter.pageSize;
+
+    const limitDefault = pageSize ? pageSize : 10;
+    const totalItems = await this.courseModel.countDocuments();
+    const totalPage = Math.ceil(totalItems / limitDefault);
+    const offset = pageSize * (current - 1);
+
+    const result = await this.courseModel
+      .find(filter)
+      .skip(offset)
+      .limit(limitDefault)
+      .sort(sort as any)
+      .select(projection)
+      .populate(population)
+      .exec();
+
+    return {
+      meta: {
+        current: current,
+        pageSize: pageSize,
+        pages: totalPage,
+        totalItem: totalItems,
+      },
+      result,
+    };
   }
 
   findOne(id: number) {
