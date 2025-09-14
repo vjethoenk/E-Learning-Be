@@ -24,6 +24,7 @@ export class RoleController {
   }
 
   @Get()
+  @ResponseMessage('Get all role')
   findAll() {
     return this.roleService.findAll();
   }

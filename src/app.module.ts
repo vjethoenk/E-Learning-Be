@@ -17,6 +17,7 @@ import { FilesModule } from './files/files.module';
 import { YoutubeModule } from './youtube/youtube.module';
 import { SectionsModule } from './sections/sections.module';
 import { LessonsModule } from './lessons/lessons.module';
+import { EnrollmentsModule } from './enrollments/enrollments.module';
 
 @Module({
   imports: [
@@ -76,6 +77,7 @@ import { LessonsModule } from './lessons/lessons.module';
     YoutubeModule,
     SectionsModule,
     LessonsModule,
+    EnrollmentsModule,
   ],
   controllers: [AppController],
   providers: [

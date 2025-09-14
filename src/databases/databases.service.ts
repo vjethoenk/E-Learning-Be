@@ -79,6 +79,7 @@ export class DatabasesService implements OnModuleInit {
             age: 69,
             gender: 'MALE',
             address: 'VietNam',
+            phone: 358936175,
             role: adminRole?._id,
           },
           {
@@ -90,6 +91,7 @@ export class DatabasesService implements OnModuleInit {
             age: 96,
             gender: 'MALE',
             address: 'VietNam',
+            phone: 988936789,
             role: adminRole?._id,
           },
           {
@@ -101,6 +103,7 @@ export class DatabasesService implements OnModuleInit {
             age: 96,
             gender: 'MALE',
             address: 'VietNam',
+            phone: 257936192,
             role: instructorRole?._id,
           },
           {
@@ -112,6 +115,7 @@ export class DatabasesService implements OnModuleInit {
             age: 69,
             gender: 'MALE',
             address: 'VietNam',
+            phone: 398936278,
             role: userRole?._id,
           },
         ]);

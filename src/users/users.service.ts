@@ -6,8 +6,10 @@ import { User, UserDocument } from './schemas/user.schema';
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
-import { USER_ROLE } from 'src/databases/sample';
+
 import { Role, RoleDocument } from 'src/role/schemas/role.schema';
+import aqp from 'api-query-params';
+import { IUser } from './user.interface';
 
 @Injectable()
 export class UsersService {
@@ -55,25 +57,68 @@ export class UsersService {
       });
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async findAll(current: number, pageSize: number, qs: string) {
+    const { filter, sort, projection, population } = aqp(qs);
+    delete filter.current;
+    delete filter.pageSize;
+
+    const limitDefault = pageSize && pageSize > 0 ? pageSize : 10;
+    const totalItems = await this.userModel.countDocuments({
+      ...filter,
+      isDeleted: false,
+    });
+
+    const totalPage = Math.ceil(totalItems / limitDefault);
+    const offset = limitDefault * (current - 1);
+
+    const result = await this.userModel
+      .find(filter)
+      .skip(offset)
+      .limit(limitDefault)
+      .sort(sort as any)
+      .select(projection)
+      .populate(population)
+      .exec();
+
+    return {
+      meta: {
+        current,
+        pageSize: limitDefault,
+        pages: totalPage,
+        total: totalItems,
+      },
+      result,
+    };
   }
 
   async findOne(id: string) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException('not found role');
     }
-    return (await this.roleModel.findById(id))!.populate({
-      path: 'permissions',
-      select: { _id: 1, apiPath: 1, name: 1, method: 1, module: 1 },
-    });
+    // return (await this.roleModel.findById(id))!.populate({
+    //   path: 'permissions',
+    //   select: { _id: 1, apiPath: 1, name: 1, method: 1, module: 1 },
+    // });
+    return await this.userModel.findOne({ _id: id });
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(_id: string, updateUserDto: UpdateUserDto, user: IUser) {
+    if (!mongoose.Types.ObjectId.isValid(_id)) {
+      throw new BadRequestException('not found role');
+    }
+    return await this.userModel.updateOne(
+      { _id },
+      {
+        ...updateUserDto,
+        updateBy: {
+          _id: user._id,
+          email: user.email,
+        },
+      },
+    );
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  remove(id: string) {
+    return this.userModel.softDelete({ _id: id });
   }
 }

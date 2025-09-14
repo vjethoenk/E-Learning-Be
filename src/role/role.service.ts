@@ -33,8 +33,8 @@ export class RoleService {
     });
   }
 
-  findAll() {
-    return `This action returns all role`;
+  async findAll() {
+    return await this.roleModel.find();
   }
 
   async findOne(id: string) {
@@ -47,10 +47,11 @@ export class RoleService {
       throw new NotFoundException('Role not found');
     }
 
-    return role.populate({
-      path: 'permissions',
-      select: { _id: 1, apiPath: 1, name: 1, method: 1, module: 1 },
-    });
+    // return role.populate({
+    //   path: 'permissions',
+    //   select: { _id: 1, apiPath: 1, name: 1, method: 1, module: 1 },
+    // });
+    return role;
   }
 
   update(id: number, updateRoleDto: UpdateRoleDto) {
