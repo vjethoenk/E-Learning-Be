@@ -93,7 +93,7 @@ export class UsersService {
 
   async findOne(id: string) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new BadRequestException('not found role');
+      throw new BadRequestException('Invalid ID');
     }
     // return (await this.roleModel.findById(id))!.populate({
     //   path: 'permissions',

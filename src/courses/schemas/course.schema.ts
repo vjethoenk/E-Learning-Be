@@ -17,7 +17,11 @@ export class Course {
   @Prop()
   price: number;
 
-  @Prop({ type: Types.ObjectId, ref: 'Category', required: true })
+  @Prop({
+    type: mongoose.Types.ObjectId,
+    ref: 'Category',
+    required: true,
+  })
   categoryId: Types.ObjectId;
 
   @Prop({ type: Object })

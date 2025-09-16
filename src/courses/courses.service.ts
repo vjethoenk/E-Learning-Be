@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -6,6 +6,8 @@ import { Course, CourseDocument } from './schemas/course.schema';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { IUser } from 'src/users/user.interface';
 import aqp from 'api-query-params';
+import mongoose from 'mongoose';
+import { emit } from 'process';
 
 @Injectable()
 export class CoursesService {
@@ -19,6 +21,7 @@ export class CoursesService {
       createBy: {
         _id: user._id,
         email: user.email,
+        name: user.name,
       },
     });
   }
@@ -39,7 +42,7 @@ export class CoursesService {
       .limit(limitDefault)
       .sort(sort as any)
       .select(projection)
-      .populate(population)
+      .populate('categoryId', 'name')
       .exec();
 
     return {
@@ -53,15 +56,28 @@ export class CoursesService {
     };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} course`;
+  findOne(id: string) {
+    return this.courseModel.findById({ _id: id });
   }
 
-  update(id: number, updateCourseDto: UpdateCourseDto) {
-    return `This action updates a #${id} course`;
+  async update(id: string, updateCourseDto: UpdateCourseDto, user: IUser) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid ID');
+    }
+    return await this.courseModel.updateOne(
+      { _id: id },
+      {
+        ...updateCourseDto,
+        updateBy: {
+          _id: user._id,
+          email: user.email,
+          name: user.name,
+        },
+      },
+    );
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} course`;
+  remove(id: string) {
+    return this.courseModel.softDelete({ _id: id });
   }
 }
