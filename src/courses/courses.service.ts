@@ -56,6 +56,47 @@ export class CoursesService {
     };
   }
 
+  async findAllByUserId(
+    id: string,
+    current: number,
+    pageSize: number,
+    qs: string,
+  ) {
+    const { filter, sort, projection, population } = aqp(qs);
+    delete filter.current;
+    delete filter.pageSize;
+
+    const limitDefault = pageSize ? pageSize : 10;
+    const totalItems = await this.courseModel.countDocuments({
+      ...filter,
+      'createBy._id': id,
+    });
+    const totalPage = Math.ceil(totalItems / limitDefault);
+    const offset = pageSize * (current - 1);
+
+    const result = await this.courseModel
+      .find({
+        ...filter,
+        'createBy._id': id,
+      })
+      .skip(offset)
+      .limit(limitDefault)
+      .sort(sort as any)
+      .select(projection)
+      .populate('categoryId', 'name')
+      .exec();
+
+    return {
+      meta: {
+        current: current,
+        pageSize: pageSize,
+        pages: totalPage,
+        totalItem: totalItems,
+      },
+      result,
+    };
+  }
+
   findOne(id: string) {
     return this.courseModel.findById({ _id: id });
   }

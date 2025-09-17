@@ -6,6 +6,7 @@ export interface IUser {
     _id: string;
     name: string;
   };
+  isDeleted: boolean;
   permissions?: {
     _id: string;
     name: string;

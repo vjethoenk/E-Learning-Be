@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateSectionDto } from './dto/create-section.dto';
 import { UpdateSectionDto } from './dto/update-section.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Section, SectionDocument } from './schemas/section.schema';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { IUser } from 'src/users/user.interface';
+import mongoose from 'mongoose';
 
 @Injectable()
 export class SectionsService {
@@ -23,19 +24,36 @@ export class SectionsService {
     });
   }
 
-  findAll() {
-    return `This action returns all sections`;
+  findAll(id: string) {
+    const result = this.sectionModel
+      .find()
+      .where({ courseId: id })
+      .sort({ order: 1 })
+      .exec();
+    return result;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} section`;
+  findOne(id: string) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid ID');
+    }
+    return this.sectionModel.findOne({ _id: id });
   }
 
-  update(id: number, updateSectionDto: UpdateSectionDto) {
-    return `This action updates a #${id} section`;
+  async update(id: string, updateSectionDto: UpdateSectionDto) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid ID');
+    }
+    return await this.sectionModel.updateOne(
+      { _id: id },
+      { ...updateSectionDto },
+    );
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} section`;
+  remove(id: string) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid ID');
+    }
+    return this.sectionModel.softDelete({ _id: id });
   }
 }

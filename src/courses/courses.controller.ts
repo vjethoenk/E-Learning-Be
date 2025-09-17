@@ -36,6 +36,16 @@ export class CoursesController {
     return this.coursesService.findAll(+current, +pageSize, qs);
   }
 
+  @Get('/user/:id')
+  findAllByUser(
+    @Param('id') id: string,
+    @Query('current') current: string,
+    @Query('pageSize') pageSize: string,
+    @Query() qs,
+  ) {
+    return this.coursesService.findAllByUserId(id, +current, +pageSize, qs);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.coursesService.findOne(id);

@@ -41,7 +41,7 @@ export class AuthService {
   }
 
   async login(user: IUser, response: Response) {
-    const { _id, name, email, role, permissions } = user;
+    const { _id, name, email, role, permissions, isDeleted } = user;
     const payload = {
       sub: 'token login',
       iss: 'from server',
@@ -49,6 +49,7 @@ export class AuthService {
       name,
       email,
       role,
+      isDeleted,
     };
 
     const refreshToken = await this.createRefreshToken(payload);
@@ -70,6 +71,7 @@ export class AuthService {
         email,
         role,
         permissions,
+        isDeleted,
       },
     };
   }
@@ -101,6 +103,7 @@ export class AuthService {
         name: user.name,
         email: user.email,
         role: user.role as unknown as { _id: string; name: string },
+        isDeleted: user.isDeleted,
       };
       response.clearCookie('refresh_token');
       return await this.login(userRefresh, response);
