@@ -7,11 +7,12 @@ import {
   Param,
   Delete,
   UploadedFile,
+  Query,
 } from '@nestjs/common';
 import { LessonsService } from './lessons.service';
 import { CreateLessonDto } from './dto/create-lesson.dto';
 import { UpdateLessonDto } from './dto/update-lesson.dto';
-import { User } from 'src/decorator/customize';
+import { Public, ResponseMessage, User } from 'src/decorator/customize';
 import { IUser } from 'src/users/user.interface';
 
 @Controller('lessons')
@@ -27,14 +28,21 @@ export class LessonsController {
     return this.lessonsService.create(createLessonDto, file, user);
   }
 
-  @Get()
-  findAll() {
-    return this.lessonsService.findAll();
+  @Get(':id')
+  @Public()
+  @ResponseMessage('Fetch api lessons')
+  findAll(
+    @Param('id') id: string,
+    @Query('current') current: string,
+    @Query('pageSize') pageSize: string,
+    @Query() qs,
+  ) {
+    return this.lessonsService.findAll(id, +current, +pageSize, qs);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.lessonsService.findOne(+id);
+    return this.lessonsService.findOne(id);
   }
 
   @Patch(':id')

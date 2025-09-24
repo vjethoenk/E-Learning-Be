@@ -18,6 +18,9 @@ export class Lesson {
   videoId?: string;
 
   @Prop()
+  thumbnail: string;
+
+  @Prop()
   duration?: number;
 
   @Prop()

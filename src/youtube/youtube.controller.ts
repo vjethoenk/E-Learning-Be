@@ -16,24 +16,36 @@ import { Public } from 'src/decorator/customize';
 export class YoutubeController {
   constructor(private readonly youtubeService: YoutubeService) {}
 
-  // login Google
+  // Lấy URL login Google
   @Get('auth-url')
   getAuthUrl() {
     return { url: this.youtubeService.generateAuthUrl() };
   }
 
-  //Callback sau khi login lưu refresh token
+  // Callback khi Google redirect về
   @Get('callback')
   @Public()
-  async oauthCallback(@Query('code') code: string) {
+  async oauthCallback(
+    @Query('code') code: string,
+    @Query('userId') userId: string, // ⚡ cần biết user nào đang login
+  ) {
     if (!code) throw new BadRequestException('Code is missing');
+    if (!userId) throw new BadRequestException('userId is missing');
 
-    const tokens = await this.youtubeService.getTokens(code);
-    console.log('Refresh token:', tokens.refresh_token);
-    return tokens;
+    try {
+      const tokens = await this.youtubeService.getTokens(code, userId);
+      console.log('Google returned tokens:', tokens);
+      return { message: 'YouTube connected successfully', tokens };
+    } catch (err) {
+      console.error(
+        'Error exchanging code for tokens:',
+        err.response?.data || err.message,
+      );
+      throw new BadRequestException('Failed to exchange code for tokens');
+    }
   }
 
-  //Upload video
+  // Upload video lên YouTube
   @Post('upload')
   @UseInterceptors(FileInterceptor('file', { dest: './uploads' }))
   async uploadVideo(
@@ -42,16 +54,15 @@ export class YoutubeController {
   ) {
     if (!file) throw new BadRequestException('No file uploaded');
 
-    const { title, description, privacyStatus, refreshToken } = body;
-    if (!refreshToken)
-      throw new BadRequestException('No refresh token provided');
+    const { title, description, privacyStatus, userId } = body;
+    if (!userId) throw new BadRequestException('UserId is required');
 
     return this.youtubeService.uploadVideo(
+      userId,
       file.path,
       title,
       description,
       privacyStatus || 'unlisted',
-      refreshToken,
     );
   }
 }

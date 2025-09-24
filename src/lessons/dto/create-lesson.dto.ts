@@ -24,6 +24,9 @@ export class CreateLessonDto {
   @IsString()
   videoId?: string; // youtube video id sau khi upload
 
+  @IsNotEmpty()
+  thumbnail: string;
+
   @IsOptional()
   @IsNumber()
   @Type(() => Number)

@@ -18,6 +18,8 @@ import { YoutubeModule } from './youtube/youtube.module';
 import { SectionsModule } from './sections/sections.module';
 import { LessonsModule } from './lessons/lessons.module';
 import { EnrollmentsModule } from './enrollments/enrollments.module';
+import { QuizzesModule } from './quizzes/quizzes.module';
+import { MulterModule } from '@nestjs/platform-express';
 
 @Module({
   imports: [
@@ -64,7 +66,9 @@ import { EnrollmentsModule } from './enrollments/enrollments.module';
       }),
       inject: [ConfigService],
     }),
-
+    MulterModule.register({
+      dest: './uploads', // thư mục tạm để lưu file
+    }),
     ConfigModule.forRoot({ isGlobal: true }),
     UsersModule,
     AuthModule,
@@ -78,6 +82,7 @@ import { EnrollmentsModule } from './enrollments/enrollments.module';
     SectionsModule,
     LessonsModule,
     EnrollmentsModule,
+    QuizzesModule,
   ],
   controllers: [AppController],
   providers: [
