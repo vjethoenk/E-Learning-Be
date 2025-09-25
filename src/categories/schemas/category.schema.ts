@@ -8,6 +8,18 @@ export class Category {
   @Prop()
   name: string;
 
+  @Prop()
+  thumbnail: string;
+
+  @Prop()
+  description: string;
+
+  @Prop()
+  color: string;
+
+  @Prop()
+  icon: string;
+
   @Prop({ type: Object })
   createBy: {
     _id: mongoose.Schema.Types.ObjectId;

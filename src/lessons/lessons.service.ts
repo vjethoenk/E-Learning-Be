@@ -21,18 +21,8 @@ export class LessonsService {
     file: Express.Multer.File,
     user: IUser,
   ) {
-    // const result = await this.youtubeService.uploadVideo(
-    //   file.path,
-    //   createLessonDto.title,
-    //   createLessonDto.description || '',
-    //   'unlisted',
-    //   process.env.GOOGLE_REDIRECT_URI,
-    // );
-
     const lesson = await this.lessonModel.create({
       ...createLessonDto,
-      // videoId: result.videoId,
-      // duration: result.duration || 0,
       createBy: {
         _id: user._id,
         email: user.email,
@@ -51,6 +41,7 @@ export class LessonsService {
     const totalItems = await this.lessonModel.countDocuments({
       ...filter,
       sectionId: id,
+      isDeleted: false,
     });
     const totalPage = Math.ceil(totalItems / limitDefault);
     const offset = pageSize * (current - 1);
@@ -85,11 +76,45 @@ export class LessonsService {
     return this.lessonModel.findOne({ _id: id });
   }
 
-  update(id: number, updateLessonDto: UpdateLessonDto) {
-    return `This action updates a #${id} lesson`;
-  }
+  async update(id: string, updateLessonDto: UpdateLessonDto, user: IUser) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid id');
+    }
 
-  remove(id: number) {
-    return `This action removes a #${id} lesson`;
+    const lesson = await this.lessonModel.findById(id);
+    if (!lesson) {
+      throw new BadRequestException('Lesson not found');
+    }
+
+    if (lesson.videoId) {
+      await this.youtubeService.updateVideo(lesson.videoId, {
+        title: updateLessonDto.title,
+        description: updateLessonDto.description,
+      });
+    }
+
+    return this.lessonModel.updateOne(
+      { _id: id },
+      {
+        ...updateLessonDto,
+        updateBy: { _id: user._id, email: user.email },
+      },
+    );
+  }
+  async remove(id: string, user: IUser) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid id');
+    }
+
+    const lesson = await this.lessonModel.findOne({ _id: id });
+    if (!lesson) {
+      throw new BadRequestException('Lesson not found');
+    }
+
+    if (lesson.videoId) {
+      await this.youtubeService.deleteVideo(lesson.videoId);
+    }
+
+    return this.lessonModel.softDelete({ _id: id });
   }
 }

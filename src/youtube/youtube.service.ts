@@ -25,11 +25,25 @@ export class YoutubeService {
     const scopes = [
       'https://www.googleapis.com/auth/youtube.upload',
       'https://www.googleapis.com/auth/youtube.readonly',
+      'https://www.googleapis.com/auth/youtube',
     ];
     return this.oauth2Client.generateAuthUrl({
       access_type: 'offline',
       scope: scopes,
       prompt: 'consent',
+    });
+  }
+  // YoutubeService.ts
+  private getYoutubeClient() {
+    const refreshToken = process.env.YOUTUBE_REFRESH_TOKEN;
+    if (!refreshToken) {
+      throw new BadRequestException('Missing refresh token');
+    }
+
+    this.oauth2Client.setCredentials({ refresh_token: refreshToken });
+    return google.youtube({
+      version: 'v3',
+      auth: this.oauth2Client,
     });
   }
 
@@ -149,5 +163,47 @@ export class YoutubeService {
         },
       },
     );
+  }
+  // helper
+  private sanitizeDescription(desc?: string): string {
+    if (!desc) return '';
+    return desc.replace(/<[^>]+>/g, '').substring(0, 5000);
+  }
+  async updateVideo(
+    videoId: string,
+    payload: { title?: string; description?: string },
+  ) {
+    try {
+      const youtube = this.getYoutubeClient();
+
+      const res = await youtube.videos.update({
+        part: ['snippet'],
+        requestBody: {
+          id: videoId,
+          snippet: {
+            title: payload.title,
+            description: this.sanitizeDescription(payload.description),
+            categoryId: '27',
+          },
+        },
+      });
+
+      return res.data;
+    } catch (error: any) {
+      console.error('Update video failed', error);
+      throw new BadRequestException('Update video failed: ' + error.message);
+    }
+  }
+
+  // ✅ Delete video
+  async deleteVideo(videoId: string) {
+    try {
+      const youtube = this.getYoutubeClient();
+      await youtube.videos.delete({ id: videoId });
+      return { message: 'Video deleted successfully' };
+    } catch (error) {
+      console.error('Delete video failed', error);
+      throw new BadRequestException('Delete video failed: ' + error.message);
+    }
   }
 }

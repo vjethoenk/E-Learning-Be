@@ -7,6 +7,9 @@ import {
   UseInterceptors,
   UploadedFile,
   BadRequestException,
+  Put,
+  Param,
+  Delete,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { YoutubeService } from './youtube.service';
@@ -64,5 +67,18 @@ export class YoutubeController {
       description,
       privacyStatus || 'unlisted',
     );
+  }
+  @Put(':videoId')
+  async updateVideo(
+    @Param('videoId') videoId: string,
+    @Body() body: { title?: string; description?: string },
+  ) {
+    return this.youtubeService.updateVideo(videoId, body);
+  }
+
+  // DELETE /youtube/:videoId
+  @Delete(':videoId')
+  async deleteVideo(@Param('videoId') videoId: string) {
+    return this.youtubeService.deleteVideo(videoId);
   }
 }

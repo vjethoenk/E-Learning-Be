@@ -8,6 +8,7 @@ import {
   Delete,
   UploadedFile,
   Query,
+  Put,
 } from '@nestjs/common';
 import { LessonsService } from './lessons.service';
 import { CreateLessonDto } from './dto/create-lesson.dto';
@@ -28,7 +29,7 @@ export class LessonsController {
     return this.lessonsService.create(createLessonDto, file, user);
   }
 
-  @Get(':id')
+  @Get('/sectionId/:id')
   @Public()
   @ResponseMessage('Fetch api lessons')
   findAll(
@@ -41,17 +42,22 @@ export class LessonsController {
   }
 
   @Get(':id')
+  @Public()
   findOne(@Param('id') id: string) {
     return this.lessonsService.findOne(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateLessonDto: UpdateLessonDto) {
-    return this.lessonsService.update(+id, updateLessonDto);
+  @Put(':id')
+  update(
+    @Param('id') id: string,
+    @Body() updateLessonDto: UpdateLessonDto,
+    @User() user: IUser,
+  ) {
+    return this.lessonsService.update(id, updateLessonDto, user);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.lessonsService.remove(+id);
+  remove(@Param('id') id: string, @User() user: IUser) {
+    return this.lessonsService.remove(id, user);
   }
 }
