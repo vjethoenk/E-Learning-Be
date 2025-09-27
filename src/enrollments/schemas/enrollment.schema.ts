@@ -5,14 +5,17 @@ export type EnrollmentDocument = HydratedDocument<Enrollment>;
 
 @Schema({ timestamps: true })
 export class Enrollment {
+  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+  user_id: Types.ObjectId;
+
   @Prop({ type: Types.ObjectId, ref: 'Course', required: true })
-  course_id: string;
+  course_id: Types.ObjectId;
 
-  @Prop()
-  progress: number;
+  // @Prop({ default: Date.now })
+  // enrollAt: Date;
 
-  @Prop()
-  completed: boolean;
+  @Prop({ default: 'pending' }) // pending | paid | cancelled
+  status: string;
 
   @Prop({ type: Object })
   createBy: {

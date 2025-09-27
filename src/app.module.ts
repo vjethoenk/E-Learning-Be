@@ -20,6 +20,7 @@ import { LessonsModule } from './lessons/lessons.module';
 import { EnrollmentsModule } from './enrollments/enrollments.module';
 import { QuizzesModule } from './quizzes/quizzes.module';
 import { MulterModule } from '@nestjs/platform-express';
+import { PaymentModule } from './payment/payment.module';
 
 @Module({
   imports: [
@@ -83,6 +84,7 @@ import { MulterModule } from '@nestjs/platform-express';
     LessonsModule,
     EnrollmentsModule,
     QuizzesModule,
+    PaymentModule,
   ],
   controllers: [AppController],
   providers: [

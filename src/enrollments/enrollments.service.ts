@@ -13,13 +13,12 @@ export class EnrollmentsService {
     private enrollmentModel: Model<EnrollmentDocument>,
   ) {}
   async create(createEnrollmentDto: CreateEnrollmentDto, user: IUser) {
-    createEnrollmentDto.progress = 0;
-    createEnrollmentDto.completed = false;
     return await this.enrollmentModel.create({
       ...createEnrollmentDto,
       createBy: {
         _id: user._id,
         email: user.email,
+        name: user.name,
       },
     });
   }

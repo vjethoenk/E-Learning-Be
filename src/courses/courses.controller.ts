@@ -37,6 +37,7 @@ export class CoursesController {
   }
 
   @Get('/user/:id')
+  @Public()
   findAllByUser(
     @Param('id') id: string,
     @Query('current') current: string,
@@ -47,6 +48,7 @@ export class CoursesController {
   }
 
   @Get(':id')
+  @Public()
   findOne(@Param('id') id: string) {
     return this.coursesService.findOne(id);
   }

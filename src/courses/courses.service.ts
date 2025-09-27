@@ -98,7 +98,10 @@ export class CoursesService {
   }
 
   findOne(id: string) {
-    return this.courseModel.findById({ _id: id });
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid ID');
+    }
+    return this.courseModel.findOne({ _id: id });
   }
 
   async update(id: string, updateCourseDto: UpdateCourseDto, user: IUser) {

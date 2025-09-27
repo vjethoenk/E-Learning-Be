@@ -60,7 +60,10 @@ export class CategoriesService {
   }
 
   findOne(id: string) {
-    return this.categoryModel.findById({ _id: id });
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid ID');
+    }
+    return this.categoryModel.findById(id);
   }
 
   async update(id: string, updateCategoryDto: UpdateCategoryDto, user: IUser) {

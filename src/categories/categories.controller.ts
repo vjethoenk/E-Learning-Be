@@ -12,7 +12,7 @@ import {
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import { ResponseMessage, User } from 'src/decorator/customize';
+import { Public, ResponseMessage, User } from 'src/decorator/customize';
 import { IUser } from 'src/users/user.interface';
 
 @Controller('category')
@@ -26,6 +26,7 @@ export class CategoriesController {
   }
 
   @Get()
+  @Public()
   findAll(
     @Query('current') current: string,
     @Query('pageSize') pageSize: string,
@@ -35,6 +36,7 @@ export class CategoriesController {
   }
 
   @Get(':id')
+  @Public()
   findOne(@Param('id') id: string) {
     return this.categoriesService.findOne(id);
   }
