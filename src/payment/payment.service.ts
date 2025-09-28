@@ -52,14 +52,14 @@ export class PaymentService {
     const enrollment = await this.enrollmentModel.create({
       user_id: userId,
       course_id: courseId,
-      status: 'pending',
+      status: 'success',
     });
 
     // Tạo payment
     const payment = await this.paymentModel.create({
       enrollment_id: enrollment._id,
       totalPrice: amount,
-      status: 'pending',
+      status: 'success',
     });
 
     // Tạo thời gian & TxnRef

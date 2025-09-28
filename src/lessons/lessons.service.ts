@@ -101,6 +101,13 @@ export class LessonsService {
       },
     );
   }
+  async countLes(id: string) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Invalid id');
+    }
+    const lesById = await this.lessonModel.find({ sectionId: id });
+    return { lessonCount: lesById.length };
+  }
   async remove(id: string, user: IUser) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException('Invalid id');

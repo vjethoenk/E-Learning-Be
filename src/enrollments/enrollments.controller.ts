@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { EnrollmentsService } from './enrollments.service';
 import { CreateEnrollmentDto } from './dto/create-enrollment.dto';
@@ -17,6 +18,13 @@ import { IUser } from 'src/users/user.interface';
 export class EnrollmentsController {
   constructor(private readonly enrollmentsService: EnrollmentsService) {}
 
+  @Get('check')
+  async checkEnrollment(
+    @Query('userId') userId: string,
+    @Query('courseId') courseId: string,
+  ) {
+    return this.enrollmentsService.checkEnrollment(userId, courseId);
+  }
   @Post()
   @ResponseMessage('Create a enrollment')
   create(

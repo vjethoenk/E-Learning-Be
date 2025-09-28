@@ -47,6 +47,11 @@ export class LessonsController {
     return this.lessonsService.findOne(id);
   }
 
+  @Get('count/:id')
+  @Public()
+  countLesson(@Param('id') id: string) {
+    return this.lessonsService.countLes(id);
+  }
   @Put(':id')
   update(
     @Param('id') id: string,
