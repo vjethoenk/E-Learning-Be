@@ -1,8 +1,7 @@
 {
   "compilerOptions": {
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
-    "resolvePackageJsonExports": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
     "esModuleInterop": true,
     "declaration": true,
     "removeComments": true,
@@ -13,7 +12,6 @@
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
-    // "ignoreDeprecations": "warn",
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": true,
@@ -21,6 +19,8 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
-    "isolatedModules": false
+    "isolatedModules": false,
+    "strict": false
+    // "ignoreDeprecations": "6.0"
   }
 }
