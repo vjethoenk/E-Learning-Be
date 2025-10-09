@@ -20,23 +20,18 @@ export class AuthService {
   //Chạy khi login + lấy role và permission
   async validateUser(username: string, pass: string): Promise<any> {
     const user = await this.usersService.findOneByUserName(username);
+
     if (user) {
       const isValid = await this.usersService.isValidPassword(
         pass,
         user.password,
       );
-      if (isValid === true) {
-        const userRole = user.role as unknown as { _id: string; name: string };
-        const temp = await this.roleService.findOne(userRole._id);
 
-        const objUser = {
-          ...user.toObject(),
-          permissions: temp?.permissions ?? [],
-        };
-
-        return objUser;
+      if (isValid) {
+        return user.toObject ? user.toObject() : user;
       }
     }
+
     return null;
   }
 

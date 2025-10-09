@@ -1,4 +1,12 @@
-import { Controller, Post, UseGuards, Res, Req, Get } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  UseGuards,
+  Res,
+  Req,
+  Get,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './local-auth.guard';
 import { Public, ResponseMessage, User } from 'src/decorator/customize';
@@ -26,8 +34,10 @@ export class AuthController {
   @ResponseMessage('Get user information')
   @Get('account')
   async handleGetAccount(@User() user: IUser) {
-    const temp = (await this.roleService.findOne(user.role._id)) as any;
-    user.permissions = temp.permissions;
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
     return { user };
   }
 

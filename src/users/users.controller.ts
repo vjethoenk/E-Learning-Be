@@ -9,7 +9,7 @@ import {
   Put,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
+import { CreateUserDto, RegisterUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Public, ResponseMessage, User } from 'src/decorator/customize';
 import { IUser } from './user.interface';
@@ -23,6 +23,13 @@ export class UsersController {
   @ResponseMessage('Create a user')
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
+  }
+
+  @Post('register')
+  @Public()
+  @ResponseMessage('Register success')
+  createRegister(@Body() registerUserDto: RegisterUserDto) {
+    return this.usersService.register(registerUserDto);
   }
 
   @Get()

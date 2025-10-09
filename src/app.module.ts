@@ -21,6 +21,7 @@ import { EnrollmentsModule } from './enrollments/enrollments.module';
 import { QuizzesModule } from './quizzes/quizzes.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { PaymentModule } from './payment/payment.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -85,14 +86,9 @@ import { PaymentModule } from './payment/payment.module';
     EnrollmentsModule,
     QuizzesModule,
     PaymentModule,
+    ChatModule,
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: JwtAuthGuard,
-    // },
-  ],
+  providers: [AppService],
 })
 export class AppModule {}

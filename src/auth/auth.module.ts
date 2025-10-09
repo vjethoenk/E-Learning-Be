@@ -9,6 +9,8 @@ import ms from 'ms';
 import { JwtStrategy } from './passport/jwt.strategy';
 import { AuthController } from './auth.controller';
 import { RoleModule } from 'src/role/role.module';
+import { WsJwtGuard } from 'src/chat/guards/ws-jwt.guard';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Module({
   imports: [
@@ -27,7 +29,13 @@ import { RoleModule } from 'src/role/role.module';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy],
-  exports: [AuthService],
+  providers: [
+    AuthService,
+    LocalStrategy,
+    JwtStrategy,
+    JwtAuthGuard,
+    WsJwtGuard,
+  ],
+  exports: [AuthService, JwtModule, JwtAuthGuard, WsJwtGuard],
 })
 export class AuthModule {}

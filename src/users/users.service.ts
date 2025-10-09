@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
+import { CreateUserDto, RegisterUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './schemas/user.schema';
@@ -38,7 +38,11 @@ export class UsersService {
     createUserDto.password = pass;
     return await this.userModel.create({ ...createUserDto });
   }
-
+  async register(registerDto: RegisterUserDto) {
+    const pass = this.hashPassword(registerDto.password);
+    registerDto.password = pass;
+    return await this.userModel.create({ ...registerDto });
+  }
   findRefreshToken = async (refreshToken: string) => {
     return await this.userModel.findOne({ refreshToken }).populate({
       path: 'role',
