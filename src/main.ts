@@ -36,29 +36,29 @@ async function bootstrap() {
   });
   app.use(cookieParser());
 
-  if (isProd) {
-    const frontendPath = path.join(
-      __dirname,
-      '..',
-      '..',
-      'e-learning-fe',
-      'dist',
-    );
-    app.use(express.static(frontendPath));
+  // if (isProd) {
+  //   const frontendPath = path.join(
+  //     __dirname,
+  //     '..',
+  //     '..',
+  //     'e-learning-fe',
+  //     'dist',
+  //   );
+  //   app.use(express.static(frontendPath));
 
-    app.use((req, res, next) => {
-      if (req.url.startsWith('/api')) {
-        return next();
-      }
+  //   app.use((req, res, next) => {
+  //     if (req.url.startsWith('/api')) {
+  //       return next();
+  //     }
 
-      res.sendFile(path.join(frontendPath, 'index.html'));
-    });
-  }
+  //     res.sendFile(path.join(frontendPath, 'index.html'));
+  //   });
+  // }
 
-  app.use((req, res, next) => {
-    res.setHeader('Cache-Control', 'no-store');
-    next();
-  });
+  // app.use((req, res, next) => {
+  //   res.setHeader('Cache-Control', 'no-store');
+  //   next();
+  // });
 
   const port = configService.get<number>('PORT') || 3000;
   await app.listen(port);
