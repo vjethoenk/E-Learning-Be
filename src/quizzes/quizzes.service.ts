@@ -3,7 +3,8 @@ import { CreateQuizDto } from './dto/create-quiz.dto';
 import { UpdateQuizDto } from './dto/update-quiz.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Quiz, QuizDocument } from './schemas/quiz.schema';
-import { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
+import he from 'he';
 import {
   QuizQuestion,
   QuizQuestionDocument,
@@ -19,6 +20,7 @@ export class QuizzesService {
     @InjectModel(QuizAnswer.name)
     private answerModel: Model<QuizAnswerDocument>,
   ) {}
+
   create(createQuizDto: CreateQuizDto) {
     return 'This action adds a new quiz';
   }
@@ -26,8 +28,23 @@ export class QuizzesService {
   findAll(id: string) {
     return this.quizModel.find({ section_id: id });
   }
-  findAllQuestions(id: string) {
-    return this.questionModel.find({ quiz_id: id });
+
+  async findAllQuestions(id: string) {
+    const questions = await this.questionModel.find({ quiz_id: id });
+    const questionsWithAnswers = await Promise.all(
+      questions.map(async (q) => {
+        const answers = await this.answerModel
+          .find({ question_id: q._id })
+          .sort({ order: 1 });
+
+        return {
+          ...q.toObject(),
+          answers,
+        };
+      }),
+    );
+
+    return questionsWithAnswers;
   }
 
   findOne(id: string) {
@@ -41,6 +58,7 @@ export class QuizzesService {
   remove(id: number) {
     return `This action removes a #${id} quiz`;
   }
+
   async createQuiz(sectionId: string, title: string) {
     return this.quizModel.create({ section_id: sectionId, title });
   }
@@ -64,20 +82,16 @@ export class QuizzesService {
   }
 
   async getQuizBySection(sectionId: string) {
-    // Lấy tất cả quiz theo section
     const quizzes = await this.quizModel.find({ section_id: sectionId });
 
     if (!quizzes || quizzes.length === 0) return [];
 
-    // Map từng quiz
     const quizzesWithQuestions = await Promise.all(
       quizzes.map(async (quiz) => {
-        // Lấy tất cả câu hỏi theo quizId
         const questions = await this.questionModel.find({
           quiz_id: quiz._id.toString(),
         });
 
-        // Map từng câu hỏi -> lấy answers
         const questionsWithAnswers = await Promise.all(
           questions.map(async (q) => {
             const answers = await this.answerModel
@@ -100,21 +114,19 @@ export class QuizzesService {
 
     return quizzesWithQuestions;
   }
+
   async getQuizById(quizId: string) {
-    // 1. Lấy quiz theo id
     const quiz = await this.quizModel.findById(quizId);
     if (!quiz) return null;
 
-    // 2. Lấy danh sách câu hỏi của quiz
     const questions = await this.questionModel.find({
       quiz_id: quiz._id.toString(),
     });
 
-    // 3. Với mỗi câu hỏi -> lấy answers
     const questionsWithAnswers = await Promise.all(
       questions.map(async (q) => {
         const answers = await this.answerModel
-          .find({ question_id: q._id.toString() })
+          .find({ question_id: q._id })
           .sort({ order: 1 });
 
         return {
@@ -124,10 +136,93 @@ export class QuizzesService {
       }),
     );
 
-    // 4. Trả về kết quả
     return {
       ...quiz.toObject(),
       questions: questionsWithAnswers,
     };
   }
+
+
+
+// ...
+
+async importFromWord(chapterId: string, text: string) {
+  const lines = text
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter(Boolean);
+
+  const titleLine = lines.find((l) => l.startsWith('# Quiz:'));
+  const quizTitle =
+    titleLine?.replace('# Quiz:', '').trim() ?? 'Untitled Quiz';
+
+  const quiz = await this.quizModel.create({
+    section_id: chapterId,
+    title: quizTitle,
+  });
+
+  let currentQuestion: string | null = null;
+  let answersBuffer: { answerText: string; isCorrect: boolean }[] = [];
+
+  for (const line of lines) {
+    if (/^Q\d+\./.test(line)) {
+      if (currentQuestion) {
+        await this.saveQuestion(
+          quiz._id.toString(),
+          currentQuestion,
+          answersBuffer,
+        );
+      }
+      currentQuestion = line.replace(/^Q\d+\.\s*/, '').trim();
+      answersBuffer = [];
+    }
+
+    else if (/^[A-D]\./.test(line)) {
+      const isCorrect = line.includes('✅');
+      const rawAnswer = line
+        .replace(/^[A-D]\.\s*/, '')
+        .replace(/✅/g, '')
+        .trim();
+
+      const answerText = he.decode(rawAnswer);
+
+      if (answerText.length > 0) {
+        answersBuffer.push({
+          answerText,
+          isCorrect,
+        });
+      }
+    }
+  }
+
+  if (currentQuestion) {
+    await this.saveQuestion(
+      quiz._id.toString(),
+      currentQuestion,
+      answersBuffer,
+    );
+  }
+
+  return { message: 'Import completed', quizId: quiz._id };
+}
+
+private async saveQuestion(quizId: string, text: string, answers: any[]) {
+  console.log('💬 Saving question:', text);
+  console.log('📌 Answers:', answers);
+
+  const question = await this.questionModel.create({
+    quiz_id: quizId,
+    questionText: text,
+  });
+
+  for (let i = 0; i < answers.length; i++) {
+    await this.answerModel.create({
+      question_id: question._id,
+      answerText: answers[i].answerText,
+      order: i + 1,
+      isCorrect: answers[i].isCorrect,
+    });
+  }
+}
+
 }

@@ -8,7 +8,11 @@ import {
   Delete,
   Req,
   NotFoundException,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import * as mammoth from 'mammoth';
 import { QuizzesService } from './quizzes.service';
 import { CreateQuizDto } from './dto/create-quiz.dto';
 import { UpdateQuizDto } from './dto/update-quiz.dto';
@@ -96,4 +100,20 @@ export class QuizzesController {
       dto.isCorrect,
     );
   }
+  @Post('import/:chapterId')
+@Public()
+@UseInterceptors(FileInterceptor('file'))
+async importQuizFromWord(
+  @Param('chapterId') chapterId: string,
+  @UploadedFile() file: Express.Multer.File,
+) {
+  if (!file) {
+    throw new NotFoundException('No file uploaded');
+  }
+
+  const result = await mammoth.extractRawText({ buffer: file.buffer });
+  const text = result.value;
+
+  return this.quizzesService.importFromWord(chapterId, text);
+}
 }
