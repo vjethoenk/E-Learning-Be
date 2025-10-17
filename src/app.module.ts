@@ -22,6 +22,7 @@ import { QuizzesModule } from './quizzes/quizzes.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { PaymentModule } from './payment/payment.module';
 import { ChatModule } from './chat/chat.module';
+import { PostModule } from './post/post.module';
 
 @Module({
   imports: [
@@ -87,6 +88,7 @@ import { ChatModule } from './chat/chat.module';
     QuizzesModule,
     PaymentModule,
     ChatModule,
+    PostModule,
   ],
   controllers: [AppController],
   providers: [AppService],
