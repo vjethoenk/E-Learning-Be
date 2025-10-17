@@ -19,7 +19,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('Invalid token payload');
     }
 
-    // ✅ Không còn load role / permissions nữa
     const { _id, name, email, role, isDeleted } = payload;
     return { _id, name, email, role, isDeleted };
   }

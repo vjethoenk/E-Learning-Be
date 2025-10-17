@@ -25,6 +25,11 @@ export class EnrollmentsController {
   ) {
     return this.enrollmentsService.checkEnrollment(userId, courseId);
   }
+  @Get('statistics')
+  async getStatistics() {
+    return this.enrollmentsService.getStatistics();
+  }
+
   @Post()
   @ResponseMessage('Create a enrollment')
   create(
@@ -55,5 +60,9 @@ export class EnrollmentsController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.enrollmentsService.remove(+id);
+  }
+  @Get('by-teacher/:teacherId')
+  async getStudentsByTeacher(@Param('teacherId') teacherId: string) {
+    return this.enrollmentsService.getStudentsByTeacher(teacherId);
   }
 }

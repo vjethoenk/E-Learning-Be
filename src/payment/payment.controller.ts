@@ -21,24 +21,6 @@ import { Response } from 'express';
 export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
 
-  // @Get('vnpay-return')
-  // @Public()
-  // async vnpayReturn(@Query() query: any) {
-  //   if (
-  //     query.vnp_ResponseCode === '00' &&
-  //     query.vnp_TransactionStatus === '00'
-  //   ) {
-  //     return {
-  //       status: 'success',
-  //       vnp_Amount: query.vnp_Amount,
-  //       vnp_OrderInfo: query.vnp_OrderInfo,
-  //     };
-  //   }
-  //   return {
-  //     status: 'fail',
-  //     vnp_ResponseCode: query.vnp_ResponseCode,
-  //   };
-  // }
   @Get('vnpay-return')
   @Public()
   async vnpayReturn(

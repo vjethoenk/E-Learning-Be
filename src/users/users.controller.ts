@@ -9,7 +9,12 @@ import {
   Put,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto, RegisterUserDto } from './dto/create-user.dto';
+import {
+  CreateUserDto,
+  ProfileUserDto,
+  RegisterUserDto,
+  UpdatePasswordDto,
+} from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Public, ResponseMessage, User } from 'src/decorator/customize';
 import { IUser } from './user.interface';
@@ -54,6 +59,24 @@ export class UsersController {
     @User() user: IUser,
   ) {
     return this.usersService.update(_id, updateUserDto, user);
+  }
+
+  @Put('profile/:id')
+  updateProfile(
+    @Param('id') _id: string,
+    @Body() profileUserDto: ProfileUserDto,
+    @User() user: IUser,
+  ) {
+    return this.usersService.updateProfile(_id, profileUserDto, user);
+  }
+
+  @Put('password/:id')
+  updatePassword(
+    @Param('id') _id: string,
+    @Body() passDto: UpdatePasswordDto,
+    @User() user: IUser,
+  ) {
+    return this.usersService.updatePassword(_id, passDto, user);
   }
 
   @Delete(':id')
