@@ -1,15 +1,17 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateQuizDto } from './dto/create-quiz.dto';
 import { UpdateQuizDto } from './dto/update-quiz.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Quiz, QuizDocument } from './schemas/quiz.schema';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import he from 'he';
+
 import {
   QuizQuestion,
   QuizQuestionDocument,
 } from './schemas/quiz-question.schema';
 import { QuizAnswer, QuizAnswerDocument } from './schemas/quiz-answer.schema';
+import { UpdateQuestionDto } from './dto/update-question.dto';
 
 @Injectable()
 export class QuizzesService {
@@ -223,6 +225,57 @@ private async saveQuestion(quizId: string, text: string, answers: any[]) {
       isCorrect: answers[i].isCorrect,
     });
   }
-}
+  }
+  async updateQuiz(quizId: string, dto: UpdateQuizDto) {
+    const quiz = await this.quizModel.findById(quizId);
+    if (!quiz) throw new NotFoundException('Quiz not found');
+
+    quiz.title = dto.title ?? quiz.title;
+    if (dto.section_id) {
+      quiz.section_id = new Types.ObjectId(dto.section_id);
+    }
+    await quiz.save();
+
+    return { message: 'Quiz updated successfully', quiz };
+  }
+
+  async deleteQuiz(quizId: string) {
+    const quiz = await this.quizModel.findById(quizId);
+    if (!quiz) throw new NotFoundException('Quiz not found');
+
+    const questions = await this.questionModel.find({ quiz_id: quiz._id });
+    for (const q of questions) {
+      await this.answerModel.deleteMany({ question_id: q._id });
+    }
+    await this.questionModel.deleteMany({ quiz_id: quiz._id });
+
+    // Xoá quiz
+    await this.quizModel.findByIdAndDelete(quizId);
+
+    return { message: 'Quiz deleted successfully' };
+  }
+  async updateQuestion(questionId: string, dto: UpdateQuestionDto) {
+    const question = await this.questionModel.findById(questionId);
+    if (!question) throw new NotFoundException('Question not found');
+  
+    if (dto.quiz_id) {
+      question.quiz_id = new Types.ObjectId(dto.quiz_id);
+    }
+    if (dto.questionText) {
+      question.questionText = dto.questionText;
+    }
+    await question.save();
+    return { message: 'Question updated successfully', question };
+  }
+  
+  async deleteQuestion(questionId: string) {
+    const question = await this.questionModel.findById(questionId);
+    if (!question) throw new NotFoundException('Question not found');
+  
+    await this.answerModel.deleteMany({ question_id: question._id });
+    await this.questionModel.findByIdAndDelete(questionId);
+  
+    return { message: 'Question deleted successfully' };
+  }
 
 }

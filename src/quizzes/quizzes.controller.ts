@@ -19,6 +19,7 @@ import { UpdateQuizDto } from './dto/update-quiz.dto';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { CreateAnswerDto } from './dto/create-answer.dto';
 import { Public, ResponseMessage } from 'src/decorator/customize';
+import { UpdateQuestionDto } from './dto/update-question.dto';
 
 @Controller('quizzes')
 export class QuizzesController {
@@ -68,15 +69,34 @@ export class QuizzesController {
   //   return this.quizzesService.findOne(id);
   // }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateQuizDto: UpdateQuizDto) {
-    return this.quizzesService.update(+id, updateQuizDto);
-  }
+  @Patch(':quizId')
+@Public()
+async updateQuiz(
+  @Param('quizId') quizId: string,
+  @Body() dto: UpdateQuizDto,
+) {
+  return this.quizzesService.updateQuiz(quizId, dto);
+}
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.quizzesService.remove(+id);
+@Delete(':quizId')
+@Public()
+async deleteQuiz(@Param('quizId') quizId: string) {
+  return this.quizzesService.deleteQuiz(quizId);
   }
+  @Patch('questions/:questionId')
+@Public()
+async updateQuestion(
+  @Param('questionId') questionId: string,
+  @Body() dto: UpdateQuestionDto,
+) {
+  return this.quizzesService.updateQuestion(questionId, dto);
+}
+
+@Delete('questions/:questionId')
+@Public()
+async deleteQuestion(@Param('questionId') questionId: string) {
+  return this.quizzesService.deleteQuestion(questionId);
+}
 
   @Post(':quizId/questions')
   @Public()
