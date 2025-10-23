@@ -11,10 +11,7 @@ export class Enrollment {
   @Prop({ type: Types.ObjectId, ref: 'Course', required: true })
   course_id: Types.ObjectId;
 
-  // @Prop({ default: Date.now })
-  // enrollAt: Date;
-
-  @Prop({ default: 'pending' }) // pending | paid | cancelled
+  @Prop({ default: 'paid' }) // pending | paid | cancelled
   status: string;
 
   @Prop({ type: Object })

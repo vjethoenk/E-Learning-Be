@@ -10,5 +10,6 @@ import { Course, CourseSchema } from './schemas/course.schema';
   ],
   controllers: [CoursesController],
   providers: [CoursesService],
+  exports: [MongooseModule, CoursesService],
 })
 export class CoursesModule {}
