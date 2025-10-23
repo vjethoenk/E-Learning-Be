@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument, Types } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
 
 export type QuizAnswerDocument = HydratedDocument<QuizAnswer>;
 
@@ -8,13 +8,13 @@ export class QuizAnswer {
   @Prop({ type: Types.ObjectId, ref: 'QuizQuestion', required: true })
   question_id: Types.ObjectId;
 
-  @Prop({ required: true })
+  @Prop({ required: true, trim: true })
   answerText: string;
 
-  @Prop()
+  @Prop({ type: Number, default: 0 })
   order: number;
 
-  @Prop({ default: false })
+  @Prop({ type: Boolean, default: false })
   isCorrect: boolean;
 }
 

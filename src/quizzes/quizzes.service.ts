@@ -255,18 +255,46 @@ private async saveQuestion(quizId: string, text: string, answers: any[]) {
     return { message: 'Quiz deleted successfully' };
   }
   async updateQuestion(questionId: string, dto: UpdateQuestionDto) {
+    // 1️⃣ Tìm question
     const question = await this.questionModel.findById(questionId);
     if (!question) throw new NotFoundException('Question not found');
   
-    if (dto.quiz_id) {
-      question.quiz_id = new Types.ObjectId(dto.quiz_id);
-    }
-    if (dto.questionText) {
-      question.questionText = dto.questionText;
-    }
+    // 2️⃣ Cập nhật dữ liệu câu hỏi
+    if (dto.quiz_id) question.quiz_id = new Types.ObjectId(dto.quiz_id);
+    if (dto.questionText) question.questionText = dto.questionText;
+  
     await question.save();
-    return { message: 'Question updated successfully', question };
+  
+    // 3️⃣ Nếu có danh sách answers mới
+    if (dto.answers && Array.isArray(dto.answers)) {
+      // Xóa tất cả đáp án cũ của câu hỏi
+      await this.answerModel.deleteMany({ question_id: question._id });
+  
+      // Tạo danh sách đáp án mới
+      const newAnswers = dto.answers.map((ans) => ({
+        question_id: question._id,
+        answerText: ans.answerText,
+        isCorrect: ans.isCorrect ?? false,
+        order: ans.order ?? 0,
+      }));
+  
+      await this.answerModel.insertMany(newAnswers);
+    }
+  
+    // 4️⃣ Trả kết quả (populate để trả cả answers)
+    const updated = await this.questionModel
+      .findById(question._id)
+      .populate('quiz_id')
+      .lean();
+  
+    const answers = await this.answerModel.find({ question_id: question._id }).lean();
+  
+    return {
+      message: 'Question updated successfully',
+      question: { ...updated, answers },
+    };
   }
+  
   
   async deleteQuestion(questionId: string) {
     const question = await this.questionModel.findById(questionId);
